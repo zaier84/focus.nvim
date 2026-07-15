@@ -2,10 +2,38 @@ local M = {}
 
 function M.setup(opts)
     M.config = opts
+    M.total_seconds = nil
     M.seconds_remaining = nil
     M.state = nil
     M.isPaused = nil
     M.handle = nil
+end
+
+function M.reset()
+    if M.handle then
+        M.handle:stop()
+        M.handle:close()
+        M.handle = nil
+    end
+    M.state = nil
+    M.isPaused = nil
+    M.seconds_remaining = nil
+    M.total_seconds = nil
+    vim.o.winbar = ""
+    local ui = require("focus.ui")
+    ui.hud_text = ""
+    ui.update_menu()
+    vim.notify("Timer reset", vim.log.levels.INFO)
+end
+
+function M.skip()
+    if not M.config then
+        vim.notify("focus.nvim: call require('focus').setup() first", vim.log.levels.ERROR)
+        return
+    end
+    M.toggle_state()
+    local ui = require("focus.ui")
+    ui.update_menu()
 end
 
 function M.start()
@@ -88,6 +116,9 @@ function M.toggle_pause()
 end
 
 function M.toggle_state()
+    if not M.handle then
+        M.start()
+    end
     if M.state == "work" then
         M.state = "break"
         M.seconds_remaining = M.config.break_duration * 60
