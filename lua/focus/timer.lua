@@ -19,8 +19,8 @@ function M.reset()
     M.isPaused = nil
     M.seconds_remaining = nil
     M.total_seconds = nil
-    vim.o.winbar = ""
     local ui = require("focus.ui")
+    ui.disable_hud()
     ui.hud_text = ""
     ui.update_menu()
     vim.notify("Timer reset", vim.log.levels.INFO)
@@ -59,8 +59,9 @@ function M.start()
     end
     M.isPaused = false
     local suffix = (M.state == "break") and " (Break Time)" or ""
-    require("focus.ui").hud_text = "Time Remaining: " .. M.format_time(M.seconds_remaining) .. suffix
-    vim.o.winbar = "%=%#Comment#%{%v:lua.require('focus.ui').statusline_component()%}"
+    local ui = require("focus.ui")
+    ui.hud_text = "Time Remaining: " .. M.format_time(M.seconds_remaining) .. suffix
+    ui.enable_hud()
     M.handle:start(1000, 1000, function()
         vim.schedule(function()
             if M.seconds_remaining == 0 then
@@ -69,8 +70,8 @@ function M.start()
                 M.seconds_remaining = M.seconds_remaining - 1
             end
 
-            local ui = require("focus.ui")
-            local suffix = (M.state == "break") and " (Break Time)" or ""
+            -- local ui = require("focus.ui")
+            suffix = (M.state == "break") and " (Break Time)" or ""
             ui.hud_text = "Time Remaining: " .. M.format_time(M.seconds_remaining) .. suffix
 
             vim.cmd("redrawstatus")
@@ -89,8 +90,8 @@ function M.stop()
         M.handle = nil
         M.isPaused = true
 
-        vim.o.winbar = ""
         local ui = require("focus.ui")
+        ui.disable_hud()
         ui.hud_text = ""
         ui.update_menu()
     end

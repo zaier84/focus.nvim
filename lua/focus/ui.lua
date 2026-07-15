@@ -2,6 +2,9 @@ local M = {}
 
 M.buf = nil
 M.win = nil
+M.hud_text = ""
+M.hud_active = false
+M.saved_winbar = nil
 
 function M.menu()
     if M.win and vim.api.nvim_win_is_valid(M.win) then
@@ -52,9 +55,24 @@ function M.menu()
     M.update_menu()
 end
 
-M.hud_text = ""
 function M.statusline_component()
     return M.hud_text
+end
+
+function M.enable_hud()
+    if not M.hud_active then
+        M.saved_winbar = vim.o.winbar
+        M.hud_active = true
+    end
+    vim.o.winbar = "%=%#Comment#%{%v:lua.require('focus.ui').statusline_component()%}"
+end
+
+function M.disable_hud()
+    if M.hud_active then
+        vim.o.winbar = M.saved_winbar or ""
+        M.saved_winbar = nil
+        M.hud_active = false
+    end
 end
 
 function M.update_menu()
