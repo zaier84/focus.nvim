@@ -4,6 +4,7 @@ function M.setup(opts)
     M.config = opts
     M.seconds_remaining = nil
     M.state = nil
+    M.isPaused = nil
     M.handle = nil
 end
 
@@ -24,6 +25,7 @@ function M.start()
     if M.handle == nil then
         M.handle = vim.uv.new_timer()
     end
+    M.isPaused = false
     M.handle:start(1000, 1000, function()
         vim.schedule(function()
             if M.state == "break" then
@@ -47,6 +49,8 @@ function M.stop()
         M.handle:stop()
         M.handle:close()
         M.handle = nil
+        M.isPaused = true
+        require("focus.ui").update_menu()
         if M.seconds_remaining == 0 then
             require("focus.ui").update_hud("Time's up!")
         else

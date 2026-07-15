@@ -62,9 +62,17 @@ end
 function M.update_menu()
     if M.win and vim.api.nvim_win_is_valid(M.win) and M.buf then
         local timer = require("focus.timer")
+        if timer.seconds_remaining == nil then
+            vim.api.nvim_buf_set_lines(M.buf, 0, -1, false, {
+                "STATE: NIL",
+                "TIME REMAINING: 00:00",
+                "[░░░░░░░░░░░░░░░░░░░░] 0%",
+            })
+            return
+        end
         vim.api.nvim_buf_set_lines(M.buf, 0, -1, false, {
             "STATE: " .. string.upper(timer.state),
-            "TIME REMAINING: " .. timer.format_time(timer.seconds_remaining),
+            "TIME REMAINING: " .. timer.format_time(timer.seconds_remaining) .. (timer.isPaused and " (PAUSED)" or ""),
             M.generate_progress_bar(timer.seconds_remaining, timer.total_seconds),
         })
     end
