@@ -28,8 +28,8 @@ function M.menu()
     local stats = vim.api.nvim_list_uis()[1]
     local width = 80
     local height = 9
-    local col = math.floor(stats.width - width) / 2
-    local row = math.floor(stats.height - height) / 2
+    local col = math.floor((stats.width - width) / 2)
+    local row = math.floor((stats.height - height) / 2)
 
     local win_opts = {
         relative = "editor",
@@ -47,6 +47,10 @@ function M.menu()
     vim.keymap.set("n", "<ESC>", function()
         M.close_menu()
     end, { buffer = M.buf, silent = true, desc = "Close Focus Menu" })
+    vim.keymap.set("n", "p", function()
+        require("focus.timer").toggle_pause()
+        M.update_menu()
+    end, { buffer = M.buf, silent = true, desc = "Toggle Pause" })
 
     vim.api.nvim_create_autocmd("BufWipeout", {
         buffer = M.buf,

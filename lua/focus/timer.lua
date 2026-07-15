@@ -66,6 +66,18 @@ function M.format_time(total_seconds)
     return string.format("%02d:%02d", minutes, seconds)
 end
 
+function M.toggle_pause()
+    if not M.state then
+        M.start()
+    elseif M.isPaused then
+        M.start()
+        vim.notify("Timer Resumed!", vim.log.levels.INFO)
+    else
+        M.stop()
+        vim.notify("Timer Paused!", vim.log.levels.INFO)
+    end
+end
+
 function M.toggle_state()
     if M.state == "work" then
         M.state = "break"
