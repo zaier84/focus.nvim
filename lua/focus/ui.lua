@@ -2,17 +2,6 @@ local M = {}
 
 M.buf = nil
 M.win = nil
-local ns_id = vim.api.nvim_create_namespace("FocusUINamespace")
-
-function M.update_hud(time)
-    local bufnr = vim.api.nvim_get_current_buf()
-
-    vim.api.nvim_buf_clear_namespace(bufnr, ns_id, 0, -1)
-    vim.api.nvim_buf_set_extmark(bufnr, ns_id, 0, 0, {
-        virt_text = { { time, "Comment" } },
-        virt_text_pos = "right_align",
-    })
-end
 
 function M.menu()
     if M.win and vim.api.nvim_win_is_valid(M.win) then
@@ -61,6 +50,11 @@ function M.menu()
     })
 
     M.update_menu()
+end
+
+M.hud_text = ""
+function M.statusline_component()
+    return M.hud_text
 end
 
 function M.update_menu()

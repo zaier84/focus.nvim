@@ -9,7 +9,10 @@ function M.setup(opts)
 end
 
 function M.start()
-    if not M.config then return end
+    if not M.config then
+        vim.notify("focus.nvim: call require('focus').setup() first", vim.log.levels.ERROR)
+        return
+    end
     if M.state == nil then
         M.state = "work"
         M.total_seconds = M.config.work_duration * 60
@@ -23,39 +26,45 @@ function M.start()
         M.handle = nil
     end
     if M.handle == nil then
-        M.handle = vim.uv.new_timer()
+        local uv = vim.uv or vim.loop
+        M.handle = uv.new_timer()
     end
     M.isPaused = false
+    local suffix = (M.state == "break") and " (Break Time)" or ""
+    require("focus.ui").hud_text = "Time Remaining: " .. M.format_time(M.seconds_remaining) .. suffix
+    vim.o.winbar = "%=%#Comment#%{%v:lua.require('focus.ui').statusline_component()%}"
     M.handle:start(1000, 1000, function()
         vim.schedule(function()
-            if M.state == "break" then
-                require("focus.ui").update_hud("Time Remaining: " ..
-                    M.format_time(M.seconds_remaining) .. " (Break Time)")
-            else
-                require("focus.ui").update_hud("Time Remaining: " .. M.format_time(M.seconds_remaining))
-            end
             if M.seconds_remaining == 0 then
                 M.toggle_state()
             else
                 M.seconds_remaining = M.seconds_remaining - 1
             end
-            require("focus.ui").update_menu()
+
+            local ui = require("focus.ui")
+            local suffix = (M.state == "break") and " (Break Time)" or ""
+            ui.hud_text = "Time Remaining: " .. M.format_time(M.seconds_remaining) .. suffix
+
+            vim.cmd("redrawstatus")
+
+            ui.update_menu()
         end)
     end)
 end
 
 function M.stop()
-    if M.handle then
+    if not M.handle then
+        vim.notify("Timer not running", vim.log.levels.INFO)
+    else
         M.handle:stop()
         M.handle:close()
         M.handle = nil
         M.isPaused = true
-        require("focus.ui").update_menu()
-        if M.seconds_remaining == 0 then
-            require("focus.ui").update_hud("Time's up!")
-        else
-            require("focus.ui").update_hud("Time: " .. M.format_time(M.seconds_remaining) .. " (Paused)")
-        end
+
+        vim.o.winbar = ""
+        local ui = require("focus.ui")
+        ui.hud_text = ""
+        ui.update_menu()
     end
 end
 
