@@ -38,8 +38,8 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 | Option           | Type     | Default | Description                     |
 | ---------------- | -------- | ------- | ------------------------------- |
-| `work_duration`  | `number` | `0.5`   | Length of a work session (min). |
-| `break_duration` | `number` | `0.2`   | Length of a break (min).        |
+| `work_duration`  | `number` | `25`   | Length of a work session (min). |
+| `break_duration` | `number` | `5`   | Length of a break (min).        |
 
 ## Commands
 
