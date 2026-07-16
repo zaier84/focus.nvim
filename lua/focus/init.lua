@@ -1,8 +1,8 @@
 local M = {}
 
 local defaults = {
-    work_duration = 0.5,
-    break_duration = 0.2,
+    work_duration = 25,
+    break_duration = 5,
 }
 
 function M.setup(opts)
